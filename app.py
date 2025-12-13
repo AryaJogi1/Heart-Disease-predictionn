@@ -7,7 +7,7 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-saved = joblib.load(r"C:/intern/model.pkl")
+saved = joblib.load("model.pkl")  
 model = saved["model"]
 scaler = saved["scaler"]
 
@@ -60,3 +60,4 @@ def predict():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
