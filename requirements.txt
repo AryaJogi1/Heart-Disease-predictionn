@@ -1,4 +1,4 @@
-flask
+Flask
 flask-cors
 gunicorn
 numpy
@@ -6,7 +6,3 @@ pandas
 scikit-learn
 joblib
 xgboost
-
-
-
-
