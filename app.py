@@ -1,67 +1,43 @@
-from flask import Flask, request, jsonify
-import numpy as np
+from flask import Flask, request, jsonify, render_template
+from flask_cors import CORS
 import pandas as pd
 import joblib
-from flask_cors import CORS
-from flask import Flask, request, jsonify, render_template
+import os
 
-app = Flask(__name__, template_folder=".")
-
+app = Flask(__name__)
 CORS(app)
 
-saved = joblib.load("model.pkl")  
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "model.pkl")
+
+saved = joblib.load(MODEL_PATH)
 model = saved["model"]
 scaler = saved["scaler"]
 
-
-feature_names = [   # Correct column names EXACTLY as used during training
-    "Chest_Pain",
-    "Shortness_of_Breath",
-    "Fatigue",
-    "Palpitations",
-    "Dizziness",
-    "Swelling",
-    "Pain_Arms_Jaw_Back",
-    "Cold_Sweats_Nausea",
-    "High_BP",
-    "High_Cholesterol",
-    "Diabetes",
-    "Smoking",
-    "Obesity",
-    "Sedentary_Lifestyle",
-    "Family_History",
-    "Chronic_Stress",
-    "Gender",
-    "Age"
+feature_names = [
+    "Chest_Pain", "Shortness_of_Breath", "Fatigue",
+    "Palpitations", "Dizziness", "Swelling",
+    "Pain_Arms_Jaw_Back", "Cold_Sweats_Nausea",
+    "High_BP", "High_Cholesterol", "Diabetes",
+    "Smoking", "Obesity", "Sedentary_Lifestyle",
+    "Family_History", "Chronic_Stress", "Gender", "Age"
 ]
 
 @app.route("/")
 def home():
     return render_template("index.html")
 
-
 @app.route("/predict", methods=["POST"])
 def predict():
-    data = request.json
+    data = request.get_json()
 
-   
-    input_values = [data[name] for name in feature_names] # Convert data to correct order
+    input_values = [float(data[name]) for name in feature_names]
+    df = pd.DataFrame([input_values], columns=feature_names)
 
-    
-    df = pd.DataFrame([input_values], columns=feature_names) # Convert to DataFrame with column names
+    df_scaled = scaler.transform(df)
+    proba = model.predict_proba(df_scaled)[0][1]
 
-   
-    df_scaled = scaler.transform(df) # Scale with proper feature names
-
-    
-    proba = model.predict_proba(df_scaled)[0][1] # Predict probability
-
-    
-    percent_score = round(proba * 100, 2) # Convert to percentage
-
-    return jsonify({"score": percent_score})
+    return jsonify({"score": round(proba * 100, 2)})
 
 if __name__ == "__main__":
-    app.run(debug=True)
-
-
+    app.run(host="0.0.0.0", port=10000)
