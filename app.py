@@ -3,8 +3,10 @@ import numpy as np
 import pandas as pd
 import joblib
 from flask_cors import CORS
+from flask import Flask, request, jsonify, render_template
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder=".")
+
 CORS(app)
 
 saved = joblib.load("model.pkl")  
@@ -35,7 +37,8 @@ feature_names = [   # Correct column names EXACTLY as used during training
 
 @app.route("/")
 def home():
-    return "Heart Risk Score ML API is running!"
+    return render_template("index.html")
+
 
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -60,4 +63,5 @@ def predict():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
