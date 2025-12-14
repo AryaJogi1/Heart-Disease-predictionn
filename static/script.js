@@ -1,4 +1,3 @@
-
 async function getPrediction() {
   try {
     let data = {};
@@ -39,7 +38,8 @@ async function getPrediction() {
     // Clamp score between 0–100
     let score = Math.min(Math.max(result.score, 0), 100);
 
-    document.getElementById("result").innerText =
+    document.getElementById("result-text").innerText =
+
       `Heart Risk Score: ${score}%`;
 
     const meter = document.getElementById("meter-fill");
@@ -55,3 +55,4 @@ async function getPrediction() {
     console.error(error);
   }
 }
+
